@@ -5,6 +5,7 @@ import requests
 import csv
 import json
 import os
+import subprocess, sys
 URL = 'http://dop.edu.ru/contingent/institution/placesList?region=42'
 HEADERS = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:71.0) Gecko/20100101 Firefox/71.0', 'accept': '*/*'}
 HOST = 'http://dop.edu.ru'
@@ -40,4 +41,5 @@ with open('org.csv', 'w', newline='') as file:
     writer.writerow(['Полное наименование', 'Краткое наименование', 'Адрес сайта'])
     for organizat in organizationsss:
         writer.writerow([organizat['Полное наименование организации (по уставу)'], organizat['Краткое наименование организации'], organizat['Адрес сайта']])
-os.startfile('org.csv')
+opener ="open" if sys.platform == "darwin" else "xdg-open"
+subprocess.call([opener, 'org.csv'])
