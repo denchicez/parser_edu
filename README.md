@@ -1,6 +1,7 @@
 # Парсер сайта http://dop.edu.ru/organization по Московской области и технологическому направлению
 ## Download packages
 ```
+python 3.7>
 - pip install beautifulsoup4
 - pip install requests
 ```
