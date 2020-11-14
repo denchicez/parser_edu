@@ -20,11 +20,11 @@ python3 <путь до parser.py>
 ### Script simple
 ##### Script simple input
 ```
-python3 /home/test/parser.py
+python3 /home/user/test/parser.py
 ```
 ##### Script simple output
 ```
-Файл - /home/test/org.csv
+Файл - /home/user/org.csv
 ```
 ###### org.csv
 | Полное наименование| Краткое наименование | Адрес сайта |
