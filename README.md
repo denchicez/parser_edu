@@ -1,4 +1,9 @@
 # Парсер сайта http://dop.edu.ru/organization по Московской области и технологическому направлению
+## Download packages
+```
+- pip install beautifulsoup4
+- pip install requests
+```
 ## Run script
 ### Script template
 #### Script template input
