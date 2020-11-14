@@ -18,18 +18,29 @@ def get_content(id):
     URL_NEW='http://dop.edu.ru/organization/view/'+str(id)
     html=get_html(URL_NEW).text
     soup = BeautifulSoup(html, 'html.parser')
-    type_of_organization=soup.find(title="Количество педагогов")
-    if(not(type_of_organization is None)):
-        index=type_of_organization.find("Техническая направленность:",0,len(type_of_organization))
-        if(index!=-1):
+    stroka=html
+    proverka=stroka.find("Техническая направленность:",0,len(stroka))
+    if(not(proverka is None) and proverka!=-1):
+        full_name=soup.find(title="Полное наименование организации (по уставу)")
+        if(not(full_name is None)):
             full_name=soup.find(title="Полное наименование организации (по уставу)").get_text()
+        else:
+            full_name="ERROR"
+        short_name=soup.find(title="Краткое наименование организации")
+        if(not(short_name is None)):
             short_name=soup.find(title="Краткое наименование организации").get_text()
+        else:
+            short_name="ERROR"
+        url_name=soup.find(title="Адрес сайта")
+        if(not(url_name is None)):
             url_name=soup.find(title="Адрес сайта").get_text()
-            organizationsss.append({
-                    'Полное наименование организации (по уставу)': full_name,
-                    'Краткое наименование организации': short_name,
-                    'Адрес сайта': url_name
-            })
+        else:
+            url_name="ERROR"
+        organizationsss.append({
+                'Полное наименование организации (по уставу)': full_name,
+                'Краткое наименование организации': short_name,
+                'Адрес сайта': url_name
+        })
 x=get_html(URL).text
 data = json.loads(x)
 organizationsss=[]
