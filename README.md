@@ -1,15 +1,16 @@
 # Парсер сайта http://dop.edu.ru/organization по Московской области и технологическому направлению
 ## Download packages
 ```
-python 3.7>
-- pip install beautifulsoup4
-- pip install requests
+- sudo apt update
+- sudo apt install python3-pip
+- pip3 install beautifulsoup4
+- pip3 install requests
 ```
 ## Run script
 ### Script template
 ##### Script template input
 ```
-python <путь до parser.py>
+python3 <путь до parser.py>
 ```
 ##### Script template output
 ```
@@ -19,11 +20,11 @@ python <путь до parser.py>
 ### Script simple
 ##### Script simple input
 ```
-python C:\Users\evroz\Desktop\edu_parser\parser.py
+python3 /home/test/parser.py
 ```
 ##### Script simple output
 ```
-Файл - C:\Users\evroz\Desktop\edu_parser\org.csv
+Файл - /home/test/org.csv
 ```
 ###### org.csv
 | Полное наименование| Краткое наименование | Адрес сайта |
