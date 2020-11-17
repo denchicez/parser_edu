@@ -6,51 +6,39 @@ import csv
 import json
 import os
 import subprocess, sys
-URL = 'http://dop.edu.ru/contingent/institution/placesList?region=42'
 HEADERS = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:71.0) Gecko/20100101 Firefox/71.0', 'accept': '*/*'}
 HOST = 'http://dop.edu.ru'
-FILE = 'cars.csv'
-
+URL = "http://dop.edu.ru/organization/list?orientation=3,4&page=1&perPage=999999"
 def get_html(url):
     r = requests.get(url, headers=HEADERS, params=None)
     return r
-def get_content(id):
-    URL_NEW='http://dop.edu.ru/organization/view/'+str(id)
-    html=get_html(URL_NEW).text
-    soup = BeautifulSoup(html, 'html.parser')
-    stroka=html
-    proverka=stroka.find("Техническая направленность:",0,len(stroka))
-    if(not(proverka is None) and proverka!=-1):
-        full_name=soup.find(title="Полное наименование организации (по уставу)")
-        if(not(full_name is None)):
-            full_name=soup.find(title="Полное наименование организации (по уставу)").get_text()
-        else:
-            full_name="ERROR"
-        short_name=soup.find(title="Краткое наименование организации")
-        if(not(short_name is None)):
-            short_name=soup.find(title="Краткое наименование организации").get_text()
-        else:
-            short_name="ERROR"
-        url_name=soup.find(title="Адрес сайта")
-        if(not(url_name is None)):
-            url_name=soup.find(title="Адрес сайта").get_text()
-        else:
-            url_name="ERROR"
-        organizationsss.append({
-                'Полное наименование организации (по уставу)': full_name,
-                'Краткое наименование организации': short_name,
-                'Адрес сайта': url_name
-        })
+def get_content(organization):
+    full_name=organization['full_name']
+    short_name=organization['name']
+    url_name=str(organization['site_url'])
+    org_id=organization['id']
+    if(full_name==''):
+        full_name="NOT FOUND"
+    if(short_name==''):
+        short_name="NOT FOUND"
+    if(url_name==''):
+        url_name="NOT FOUND"
+    organizationsss.append({
+            'Полное наименование организации (по уставу)': full_name,
+            'Краткое наименование организации': short_name,
+            'Адрес сайта': url_name,
+            'id': org_id
+    })
 x=get_html(URL).text
 data = json.loads(x)
 organizationsss=[]
 for organization in data["data"]["list"]:
-    id_organization=organization["id"]
-    get_content(id_organization)
-with open('org.csv', 'w', newline='') as file:
+    get_content(organization)
+with open('org.csv', 'w', newline="") as file:
     writer = csv.writer(file, delimiter=';')
-    writer.writerow(['Полное наименование', 'Краткое наименование', 'Адрес сайта'])
+    writer.writerow(['Полное наименование организации (по уставу)', 'Краткое наименование организации', 'Адрес сайта','id'])
     for organizat in organizationsss:
-        writer.writerow([organizat['Полное наименование организации (по уставу)'], organizat['Краткое наименование организации'], organizat['Адрес сайта']])
+        organizat['Адрес сайта']=organizat['Адрес сайта'].replace('\u200b','')
+        writer.writerow([organizat['Полное наименование организации (по уставу)'], organizat['Краткое наименование организации'], organizat['Адрес сайта'], organizat['id']])
 opener ="open" if sys.platform == "darwin" else "xdg-open"
 subprocess.call([opener, 'org.csv'])
