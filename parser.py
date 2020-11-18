@@ -33,7 +33,31 @@ def find_number(index,string):
             check=1
             ch=ord(string[i])-ord('0')
     return ch
-def get_content(organization):
+def find_string(index,string):
+    slovo=''
+    for i in range(index,len(string)):
+        if(string[i]==chr(34)):
+            break
+        else:
+            slovo=slovo+string[i]
+    return slovo
+def NameCheck(string,code1,code2):
+    letters = ['|',':',' ',chr(34),'a','b','c','d','e','f','g','h','k','l','m','n','o','p','q','v','w','x','y','z','а','a','б','в','г','д','е','ё','ж','з','и','й','к','л','м','н','о','п','р','с','т','у','ф','х','ц','ч','ш','щ','ъ','ы','ь','э','ю','я','-','+',',','.','/','[',']','1','2','3','4','5','6','7','8','9','0','#','№','-','_','=','}','{','+']
+    try:
+        string=string.encode(code1).decode(code2)
+    except:
+        return False
+    try:
+        string=string.lower()
+    except:
+        string=string
+    for delite_symbole in letters:
+        string=string.replace(delite_symbole,'')
+    if(len(string)>2): 
+        return False
+    else:
+        return True
+def get_content(organization,coun):
     try:
         techno=organization['orientation_name'].find('Техническая',0,len(organization['orientation_name']))
     except:
@@ -52,92 +76,168 @@ def get_content(organization):
     else:
         estestv=True
     if(estestv==1 or techno==1):
-        org_id=organization['id']    
+        global count
+        count=count+1
+        org_id=organization['id']
         HTML=get_html(HOST+'/organization/view/'+str(org_id)).text
         soup=BeautifulSoup(HTML,'html.parser')
         try:
             full_name=organization['full_name']
+            if(full_name=='' or full_name==None or full_name==' '):
+                full_name='Не известно'
         except:
-            full_name=''
+            full_name='Не известно'
         try:
             short_name=organization['name']
+            if(short_name=='' or short_name==None or short_name==' '):
+                short_name='Не известно'
         except:
-            short_name=''
+            short_name='Не известно'
         try:
             adress=organization['origin_address']
+            if(adress=='' or adress==None or adress==' '):
+                adress='Не известно'
         except:
-            adress=''
+            adress='Не известно'
         try:
             phone=organization['phone']
+            if(phone=='' or phone==None or phone==' '):
+                phone='Не известно'
         except:
-            phone=''
+            phone='Не известно'
         try:
             phone_add=organization['phone_add']
+            if(phone_add=='' or phone_add==None or phone_add==' '):
+                phone_add='Не известно'
         except:
-            phone_add=''
+            phone_add='Не известно'
         try:
             email=organization['email']
+            if(email=='' or email==None or email==' '):
+                email='Не известно'
         except:
-            email=''
+            email='Не известно'
+            
         try:
             url_name=organization['site_url']
-            site_is_work=urlChecker(url_name)
+            if(url_name=='' or url_name==None or url_name==' '):
+                url_name='Не известно'
+                site_is_work=False
+            else:
+                if(urlChecker(url_name)==False):    
+                    if(url_name[:4]!='http'):
+                        url_name='http://'+url_name
+                    site_is_work=urlChecker(url_name)
+                    if(site_is_work==False):
+                        if(url_name[:5]=='http:'):
+                            url_name= 'https'+url_name[4-(len(url_name)):]
+                            site_is_work=urlChecker(url_name)
+                else:
+                    site_is_work=True
+                        
         except:
             site_is_work=False
-            url_name=''
+            url_name='Не известно'
             
         if(site_is_work==True):
+            letters = [' ','a','b','c','d','e','f','g','h','k','l','m','n','o','p','q','v','w','x','y','z','а','a','б','в','г','д','е','ё','ж','з','и','й','к','л','м','н','о','п','р','с','т','у','ф','х','ц','ч','ш','щ','ъ','ы','ь','э','ю','я','-','+',',','.','/','[',']','1','2','3','4','5','6','7','8','9','0','#','№','-','_','=','}','{']
             HTML2=get_html(url_name).text
             soup2=BeautifulSoup(HTML2,'html.parser')
-            
+            all_code = ['UTF-8','UTF-16','cp1251','latin1']
             try:
-                title_org_site=soup2.find('title').text
+                title_org_site=((soup2.find('head')).find('title')).text
+                print(title_org_site)
+                if(title_org_site.find('�',0,len(title_org_site))==-1):
+                    code1='UTF-8'
+                    code2='UTF-8'
+                    for code_in_all1 in all_code:
+                        chk=0
+                        for code_in_all2 in all_code:
+                            if(NameCheck(title_org_site,code_in_all1,code_in_all2)==True):
+                                code1=code_in_all1
+                                code2=code_in_all2
+                                chk=1
+                                break
+                        if(chk==1):
+                            title_org_site=title_org_site.encode(code1).decode(code2)
+                            break
+                else:
+                    title_org_site='У сайта неизвестная кодировка'  
+                print(title_org_site)
             except:
-                title_org_site='не найдено'
-            try:
-                description_org_site=soup2.find('meta',name='description').text
-            except:
-                description_org_site='Не найдено'
-            try:
-                keywords_org_site=soup2.find('meta',name='keywords').text
-            except:
-                keywords_org_site='Не найдено'
+                code1='UTF-8'
+                code2='UTF-8'
+                title_org_site='Не найдено'  
+            if(title_org_site!='У сайта неизвестная кодировка'):
+                try:
+                    description_org_site=soup2.find(attrs={"name":"description"})
+                    description_org_site=str(description_org_site)
+                    description_org_site = BeautifulSoup(description_org_site, 'html.parser')
+                    description_org_site=description_org_site.meta['content']
+                    description_org_site=description_org_site.encode(code1).decode(code2)
+                except:
+                    description_org_site='Не найдено'
+                if(description_org_site==''):
+                    description_org_site='Отсутсвует'
+                try:
+                   keywords_org_site=soup2.find(attrs={"name":"keywords"})
+                   keywords_org_site=str(keywords_org_site)
+                   keywords_org_site = BeautifulSoup(keywords_org_site, 'html.parser')
+                   keywords_org_site=keywords_org_site.meta['content']
+                   keywords_org_site=keywords_org_site.encode(code1).decode(code2)
+                except:
+                    keywords_org_site='Не найдено'
+                if(keywords_org_site==''):
+                    keywords_org_site='Отсутсвует'
+            else:
+                description_org_site='У сайта неизвестная кодировка'
+                keywords_org_site='У сайта неизвестная кодировка'
         else:
             title_org_site='Cайт не работает или не существует'
             description_org_site='Cайт не работает или не существует'
             keywords_org_site='Cайт не работает или не существует'
-            
-            
-            
-            
         try:
             region_id=organization['region_id']
+            if(region_id=='' or region_id==None or region_id==' '):
+                region_id='Не известно'
         except:
-            region_id=''
+            region_id='Не известно'
         try:
             year_create=soup.find(title='Дата создания организации').text
+            if(year_create=='' or year_create==None or year_create==' '):
+                year_create='Не известно'
         except:
-            year_create=''
+            year_create='Не известно'
         try:
             filial=soup.find(title='Юридическое лицо / Филиал').text
+            if(filial=='' or filial==None or filial==' '):
+                filial='Не известно'
         except:
-            filial=''
+            filial='Не известно'
         try:
             all_personal=soup.find(title='Общее количество сотрудников').text
+            if(all_personal=='' or all_personal==None or all_personal==' '):
+                all_personal='Не известно'
         except:
-            all_personal=''
+            all_personal='Не известно'
         try:
             name_region=soup.find(title='Субъект РФ').text
+            if(name_region=='' or name_region==None or name_region==' '):
+                name_region='Не известно'
         except:
-            name_region=''
+            name_region='Не известно'
         try:
             type_organ=organization['institution_type_name']
+            if(type_organ=='' or type_organ==None or type_organ==' '):
+                type_organ='Не известно'
         except:
-            type_organ=''
+            type_organ='Не известно'
         try:
             fact_napoln=soup.find(title='Фактическая наполняемость').text
+            if(fact_napoln=='' or fact_napoln==None or fact_napoln==' '):
+                fact_napoln='Не известно'
         except:
-            fact_napoln=''
+            fact_napoln='Не известно'
             
         tmp=HTML.find("Всего:",0,len(HTML))
         if(tmp!=-1):
@@ -230,24 +330,35 @@ def get_content(organization):
             count_child_intellect=0
         try:
             okfs=organization['okfs']
+            if(okfs=='' or okfs==None or okfs==' '):
+                okfs='Не известно'
         except:
-            okfs=''
+            okfs='Не известно'
+        print(organization['okfs'], ' ',okfs)
         try:
             indef_of_organ=soup.find(title='Идентификатор организации').text
+            if(indef_of_organ=='' or indef_of_organ==None or indef_of_organ==' '):
+                indef_of_organ='Не известно'
         except:
-            indef_of_organ=''
+            indef_of_organ='Не известно'
         try:
             okopf=organization['okopf']
+            if(okopf=='' or okopf==None or okopf==' '):
+                okopf='Не известно'
         except:
-            okopf=''                    
+            okopf='Не известно'                    
         try:
             ogrn=organization['ogrn']
+            if(ogrn=='' or ogrn==None or ogrn==' '):
+                ogrn='Не известно'
         except:
-            ogrn=''
+            ogrn='Не известно'
         try:
             inn=organization['inn']
+            if(inn=='' or inn==None or inn==' '):
+                inn='Не известно'
         except:
-            inn=''
+            inn='Не известно'
         organizationsss.append({
                 'Адрес организации':adress,
                 'Номер телефона орагнизации':phone,
@@ -292,17 +403,31 @@ def get_content(organization):
                 'Техническое': techno,
                 'Естественнонаучная': estestv
         })
-        print(org_id)
+        coun=coun+1
+        print('Complete -  ',coun,'/1562')
 x=get_html(URL).text
 data = json.loads(x)
 organizationsss=[]
+count=0;
 for organization in data["data"]["list"]:
-    get_content(organization)
+    print(organization['id'])
+    get_content(organization,count)
+    if(count==500):
+        break
 with open('org.csv', 'w', newline="") as file:
     writer = csv.writer(file, delimiter=';')
-    writer.writerow(['Адрес организации','Номер телефона орагнизации','Номер дополнительного телефона орагнизации','email aдрес','Адрес сайта','Работает ли сайт?','title сайта организации','description сайта организации','keywords сайта организации','id региона','Полное наименование организации (по уставу)','Краткое наименование организации','Дата создания организации','Юридическое лицо / Филиал','Общее количество сотрудников','Субъект РФ','Тип организации','Количество занимающихся детей','Количество занимающихся детей художественной направленностью','Количество занимающихся детей естественно-научной направленностью','Количество занимающихся детей технической направленностью','Количество занимающихся детей социально-педагогической направленностью','Количество занимающихся детей физкультурно-спортивной направленностью','Количество занимающихся детей туристической направленностью','Количество занимающихся детей интеллектуально игровой направленностью','Фактическая наполняемость','Количество педагогов','Количество педагогов художественной направленности' ,'Количество педагогов естественно-научной направленности','Количество педагогов технической направленности' ,'Количество педагогов социально-педагогической направленности' ,'Количество педагогов физкультурно-спортивной направленности' ,'Количество педагогов туристической направленности','Количество педагогов интеллектуально игровой направленности','okfs','indef_of_organ','okopf','ogrn','inn','id','Техническое','Естественнонаучная'])
+    writer.writerow(['Адрес организации','Номер телефона орагнизации','Номер дополнительного телефона орагнизации','email aдрес',
+                     'Адрес сайта','Работает ли сайт?','title сайта организации','description сайта организации','keywords сайта организации',
+                     'id региона','Полное наименование организации (по уставу)','Краткое наименование организации','Дата создания организации',
+                     'Юридическое лицо / Филиал','Общее количество сотрудников','Субъект РФ','Тип организации','Количество занимающихся детей',
+                     'Количество занимающихся детей художественной направленностью','Количество занимающихся детей естественно-научной направленностью',
+                     'Количество занимающихся детей технической направленностью','Количество занимающихся детей социально-педагогической направленностью',
+                     'Количество занимающихся детей физкультурно-спортивной направленностью','Количество занимающихся детей туристической направленностью',
+                     'Количество занимающихся детей интеллектуально игровой направленностью','Фактическая наполняемость','Количество педагогов',
+                     'Количество педагогов художественной направленности' ,'Количество педагогов естественно-научной направленности',
+                     'Количество педагогов технической направленности' ,'Количество педагогов социально-педагогической направленности' ,
+                     'Количество педагогов физкультурно-спортивной направленности' ,'Количество педагогов туристической направленности',
+                     'Количество педагогов интеллектуально игровой направленности','okfs','okopf','ogrn','inn','id','Техническое','Естественнонаучная'])
     for organizat in organizationsss:
         organizat['Адрес сайта']=organizat['Адрес сайта'].replace('\u200b','')
-        writer.writerow([organizat['Адрес организации'],organizat['Номер телефона орагнизации'],organizat['Номер дополнительного телефона орагнизации'],organizat['email aдрес'],organizat['Адрес сайта'],organizat['Работает ли сайт?'],organizat['title сайта организации'],organizat['description сайта организации'],organizat['keywords сайта организации'],organizat['id региона'],organizat['Полное наименование организации (по уставу)'],organizat['Краткое наименование организации'],organizat['Дата создания организации'],organizat['Юридическое лицо / Филиал'],organizat['Общее количество сотрудников'],organizat['Субъект РФ'],organizat['Тип организации'],organizat['Количество занимающихся детей'],organizat['Количество занимающихся детей художественной направленностью'],organizat['Количество занимающихся детей естественно-научной направленностью'],organizat['Количество занимающихся детей технической направленностью'],organizat['Количество занимающихся детей социально-педагогической направленностью'],organizat['Количество занимающихся детей физкультурно-спортивной направленностью'],organizat['Количество занимающихся детей туристической направленностью'],organizat['Количество занимающихся детей интеллектуально игровой направленностью'],organizat['Фактическая наполняемость'],organizat['Количество педагогов'],organizat['Количество педагогов художественной направленности'],organizat['Количество педагогов естественно-научной направленности'],organizat['Количество педагогов технической направленности'],organizat['Количество педагогов социально-педагогической направленности'],organizat['Количество педагогов физкультурно-спортивной направленности'],organizat['Количество педагогов туристической направленности'],organizat['Количество педагогов интеллектуально игровой направленности'],organizat['okfs'],organizat['indef_of_organ'],organizat['okopf'],organizat['ogrn'],organizat['inn'],organizat['id'],organizat['Техническое'],organizat['Естественнонаучная']])
-opener ="open" if sys.platform == "darwin" else "xdg-open"
-subprocess.call([opener, 'org.csv'])
+        writer.writerow([organizat['Адрес организации'],organizat['Номер телефона орагнизации'],organizat['Номер дополнительного телефона орагнизации'],organizat['email aдрес'],organizat['Адрес сайта'],organizat['Работает ли сайт?'],organizat['title сайта организации'],organizat['description сайта организации'],organizat['keywords сайта организации'],organizat['id региона'],organizat['Полное наименование организации (по уставу)'],organizat['Краткое наименование организации'],organizat['Дата создания организации'],organizat['Юридическое лицо / Филиал'],organizat['Общее количество сотрудников'],organizat['Субъект РФ'],organizat['Тип организации'],organizat['Количество занимающихся детей'],organizat['Количество занимающихся детей художественной направленностью'],organizat['Количество занимающихся детей естественно-научной направленностью'],organizat['Количество занимающихся детей технической направленностью'],organizat['Количество занимающихся детей социально-педагогической направленностью'],organizat['Количество занимающихся детей физкультурно-спортивной направленностью'],organizat['Количество занимающихся детей туристической направленностью'],organizat['Количество занимающихся детей интеллектуально игровой направленностью'],organizat['Фактическая наполняемость'],organizat['Количество педагогов'],organizat['Количество педагогов художественной направленности'],organizat['Количество педагогов естественно-научной направленности'],organizat['Количество педагогов технической направленности'],organizat['Количество педагогов социально-педагогической направленности'],organizat['Количество педагогов физкультурно-спортивной направленности'],organizat['Количество педагогов туристической направленности'],organizat['Количество педагогов интеллектуально игровой направленности'],organizat['okfs'],organizat['okopf'],organizat['ogrn'],organizat['inn'],organizat['id'],organizat['Техническое'],organizat['Естественнонаучная']])
