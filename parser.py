@@ -7,19 +7,19 @@ import json
 HEADERS = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:82.0) Gecko/20100101 Firefox/82.0', 'accept': '*/*'}
 HOST = 'http://dop.edu.ru'
 URL = "http://dop.edu.ru/organization/list?page=0&perPage=999999"
-def get_html(url):
+def get_html(url):         # делаем запрос на html страничку
     try:
         r = requests.get(url, headers=HEADERS, params=None)
         return r
     except:
-        print('SOME TROUBLE WITH INTERNET')
+        print('SOME TROUBLE WITH INTERNET') #не смогли сделать запрос т.к. произошла ошибка с связью
         return sys.exit()
-def urlChecker(url):
+def urlChecker(url): #Работает ли URL?
     if not validators.url(url):
         return False
     r = requests.head(url)
     return r.status_code == 200
-def find_number(index,string):
+def find_number(index,string): # ищем следующее число после строки
     check=0
     ch=0
     for i in range(index,len(string)):
@@ -33,31 +33,23 @@ def find_number(index,string):
             check=1
             ch=ord(string[i])-ord('0')
     return ch
-def find_string(index,string):
-    slovo=''
-    for i in range(index,len(string)):
-        if(string[i]==chr(34)):
-            break
-        else:
-            slovo=slovo+string[i]
-    return slovo
-def NameCheck(string,code1,code2):
-    letters = ['|',':',' ',chr(34),'a','b','c','d','e','f','g','h','k','l','m','n','o','p','q','v','w','x','y','z','а','a','б','в','г','д','е','ё','ж','з','и','й','к','л','м','н','о','п','р','с','т','у','ф','х','ц','ч','ш','щ','ъ','ы','ь','э','ю','я','-','+',',','.','/','[',']','1','2','3','4','5','6','7','8','9','0','#','№','-','_','=','}','{','+']
+def NameCheck(string,code1,code2): #Можно ли расшифровать stirng с помощью code1 и code2
+    letters = ['<','>','«','»',chr(13),chr(10),'(',')','|',':',' ',chr(34),'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','а','a','б','в','г','д','е','ё','ж','з','и','й','к','л','м','н','о','п','р','с','т','у','ф','х','ц','ч','ш','щ','ъ','ы','ь','э','ю','я','-','+',',','.','/','[',']','1','2','3','4','5','6','7','8','9','0','#','№','-','—','_','=','}','{','+','!','?','#']
     try:
-        string=string.encode(code1).decode(code2)
+        string=string.encode(code1).decode(code2) #декодируем если можно
     except:
-        return False
+        return False # выходим
     try:
-        string=string.lower()
+        string=string.lower() # пытаемся сделать нижний регистр
     except:
         string=string
-    for delite_symbole in letters:
+    for delite_symbole in letters: #удаляем символы
         string=string.replace(delite_symbole,'')
-    if(len(string)>2): 
+    if(len(string)>2): #Если длина остатков больше 2 выходим
         return False
     else:
-        return True
-def get_content(organization,coun):
+        return True #все верно
+def get_content(organization,coun): #узнаем все параметры организации
     try:
         techno=organization['orientation_name'].find('Техническая',0,len(organization['orientation_name']))
     except:
@@ -140,17 +132,17 @@ def get_content(organization,coun):
             url_name='Не известно'
             
         if(site_is_work==True):
-            letters = [' ','a','b','c','d','e','f','g','h','k','l','m','n','o','p','q','v','w','x','y','z','а','a','б','в','г','д','е','ё','ж','з','и','й','к','л','м','н','о','п','р','с','т','у','ф','х','ц','ч','ш','щ','ъ','ы','ь','э','ю','я','-','+',',','.','/','[',']','1','2','3','4','5','6','7','8','9','0','#','№','-','_','=','}','{']
             HTML2=get_html(url_name).text
             soup2=BeautifulSoup(HTML2,'html.parser')
             all_code = ['UTF-8','UTF-16','cp1251','latin1']
             try:
                 title_org_site=((soup2.find('head')).find('title')).text
+                print(title_org_site)
                 if(title_org_site.find('�',0,len(title_org_site))==-1):
                     code1='UTF-8'
                     code2='UTF-8'
+                    chk=0
                     for code_in_all1 in all_code:
-                        chk=0
                         for code_in_all2 in all_code:
                             if(NameCheck(title_org_site,code_in_all1,code_in_all2)==True):
                                 code1=code_in_all1
@@ -160,8 +152,12 @@ def get_content(organization,coun):
                         if(chk==1):
                             title_org_site=title_org_site.encode(code1).decode(code2)
                             break
+                    if(chk==0):
+                        title_org_site='У сайта неизвестная кодировка'
+                    print(title_org_site)
                 else:
-                    title_org_site='У сайта неизвестная кодировка'  
+                    title_org_site='У сайта неизвестная кодировка' 
+                
             except:
                 code1='UTF-8'
                 code2='UTF-8'
@@ -238,94 +234,151 @@ def get_content(organization,coun):
             fact_napoln='Не известно'
             
         tmp=HTML.find("Всего:",0,len(HTML))
+        if(HTML[tmp+7].isdigit()==False):
+            tmp=HTML.find("Всего:",tmp+7,len(HTML))
         if(tmp!=-1):
             last=tmp+7
             all_ped=find_number(tmp+6,HTML)
         else:
             all_ped=0
+            
         tmp=HTML.find("Художественная направленность:",0,len(HTML))
+        if(HTML[tmp+31].isdigit()==False):
+            tmp=HTML.find("Художественная направленность:",tmp+31,len(HTML))
         if(tmp!=-1):
             last=tmp+31
             count_ped_paints=find_number(tmp+30,HTML)
         else:
             count_ped_paints=0
-        tmp=HTML.find("Естественнонаучная направленность:",0,len(HTML))
+            
+            
+        tmp=HTML.find("Естественнонаучная направленность:,",0,len(HTML))
+        if(HTML[tmp+35].isdigit()==False):
+            tmp=HTML.find("Естественнонаучная направленность:",tmp+35,len(HTML))
         if(tmp!=-1):
             last=tmp+35
             count_ped_estesv=find_number(tmp+34,HTML)
         else:
             count_ped_estesv=0
+            
+            
         tmp=HTML.find("Техническая направленность:",0,len(HTML))
+        if(HTML[tmp+28].isdigit()==False):
+            tmp=HTML.find("Техническая направленность:",tmp+28,len(HTML))
         if(tmp!=-1):
             last=tmp+28
             count_ped_techno=find_number(tmp+27,HTML)
         else:
             count_ped_techno=0
+            
+            
         tmp=HTML.find("Социально-педагогическая направленность:",0,len(HTML))
+        if(HTML[tmp+41].isdigit()==False):
+            tmp=HTML.find("Социально-педагогическая направленность:",tmp+41,len(HTML))
         if(tmp!=-1):
             last=tmp+41
             count_ped_socium=find_number(tmp+40,HTML)
         else:
             count_ped_socium=0
         tmp=HTML.find("Физкультурно-спортивная направленность:",0,len(HTML))
+        if(HTML[tmp+40].isdigit()==False):
+            tmp=HTML.find("Физкультурно-спортивная направленность:",tmp+40,len(HTML))
         if(tmp!=-1):
             last=tmp+40
             count_ped_fizra=find_number(tmp+39,HTML)
         else:
             count_ped_fizra=0
         tmp=HTML.find("Туристско-краеведческая направленность:",0,len(HTML))
+        if(HTML[tmp+40].isdigit()==False):
+            tmp=HTML.find("Туристско-краеведческая направленность:",tmp+40,len(HTML))
         if(tmp!=-1):
             last=tmp+40
             count_ped_turist=find_number(tmp+39,HTML)
         else:
             count_ped_turist=0
+            
+            
         tmp=HTML.find("Интеллектуальные игры направленность:",0,len(HTML))
+        if(HTML[tmp+38].isdigit()==False):
+            tmp=HTML.find("Интеллектуальные игры направленность:",tmp+38,len(HTML))
         if(tmp!=-1):
             last=tmp+38
             count_ped_intellect=find_number(tmp+37,HTML)
         else:
             count_ped_intellect=0
+            
         tmp=HTML.find("Всего:",last,len(HTML))
+        if(HTML[tmp+7].isdigit()==False):
+            tmp=HTML.find("Всего:",tmp+7,len(HTML))
         if(tmp!=-1):
             last=tmp+7
             all_child=find_number(tmp+6,HTML)
         else:
             all_child=0
+            
+            
         tmp=HTML.find("Художественная направленность:",last,len(HTML))
+        if(HTML[tmp+31].isdigit()==False):
+            tmp=HTML.find("Художественная направленность:",tmp+30,len(HTML))
         if(tmp!=-1):
             count_child_paints=find_number(tmp+30,HTML)
         else:
             count_child_paints=0
+            
         tmp=HTML.find("Естественнонаучная направленность:",last,len(HTML))
+        if(HTML[tmp+35].isdigit()==False):
+            tmp=HTML.find("Естественнонаучная направленность:",tmp+34,len(HTML))
         if(tmp!=-1):
             count_child_estesv=find_number(tmp+34,HTML)
         else:
             count_child_estesv=0
+            
         tmp=HTML.find("Техническая направленность:",last,len(HTML))
+        if(HTML[tmp+28].isdigit()==False):
+            tmp=HTML.find("Техническая направленность:",tmp+27,len(HTML))
         if(tmp!=-1):
             count_child_techno=find_number(tmp+27,HTML)
         else:
             count_child_techno=0
+            
+            
         tmp=HTML.find("Социально-педагогическая направленность:",last,len(HTML))
+        if(HTML[tmp+41].isdigit()==False):
+            tmp=HTML.find("Социально-педагогическая направленность:",tmp+40,len(HTML))
         if(tmp!=-1):
             count_child_socium=find_number(tmp+40,HTML)
         else:
             count_child_socium=0
+            
+            
         tmp=HTML.find("Физкультурно-спортивная направленность:",last,len(HTML))
+        if(HTML[tmp+40].isdigit()==False):
+            tmp=HTML.find("Физкультурно-спортивная направленность:",tmp+39,len(HTML))
         if(tmp!=-1):
             count_child_fizra=find_number(tmp+39,HTML)
         else:
             count_child_fizra=0
+            
+            
         tmp=HTML.find("Туристско-краеведческая направленность:",last,len(HTML))
+        if(HTML[tmp+40].isdigit()==False):
+            tmp=HTML.find("Туристско-краеведческая направленность:",tmp+39,len(HTML))
         if(tmp!=-1):
             count_child_turist=find_number(tmp+39,HTML)
         else:
             count_child_turist=0
+            
+            
         tmp=HTML.find("Интеллектуальные игры направленность:",last,len(HTML))
+        if(HTML[tmp+38].isdigit()==False):
+            tmp=HTML.find("Туристско-краеведческая направленность:",tmp+37,len(HTML))
         if(tmp!=-1):
             count_child_intellect=find_number(tmp+37,HTML)
         else:
             count_child_intellect=0
+            
+            
+            
         try:
             okfs=organization['okfs']
             if(okfs=='' or okfs==None or okfs==' '):
@@ -401,13 +454,14 @@ def get_content(organization,coun):
                 'Естественнонаучная': estestv
         })
         coun=coun+1
-        print('Complete -  ',coun,'/1562')
 x=get_html(URL).text
 data = json.loads(x)
 organizationsss=[]
 count=0;
 for organization in data["data"]["list"]:
     get_content(organization,count)
+    if(count>500):
+        break
 with open('org.csv', 'w', newline="") as file:
     writer = csv.writer(file, delimiter=';')
     writer.writerow(['Адрес организации','Номер телефона орагнизации','Номер дополнительного телефона орагнизации','email aдрес',
@@ -424,4 +478,7 @@ with open('org.csv', 'w', newline="") as file:
                      'Количество педагогов интеллектуально игровой направленности','okfs','okopf','ogrn','inn','id','Техническое','Естественнонаучная'])
     for organizat in organizationsss:
         organizat['Адрес сайта']=organizat['Адрес сайта'].replace('\u200b','')
-        writer.writerow([organizat['Адрес организации'],organizat['Номер телефона орагнизации'],organizat['Номер дополнительного телефона орагнизации'],organizat['email aдрес'],organizat['Адрес сайта'],organizat['Работает ли сайт?'],organizat['title сайта организации'],organizat['description сайта организации'],organizat['keywords сайта организации'],organizat['id региона'],organizat['Полное наименование организации (по уставу)'],organizat['Краткое наименование организации'],organizat['Дата создания организации'],organizat['Юридическое лицо / Филиал'],organizat['Общее количество сотрудников'],organizat['Субъект РФ'],organizat['Тип организации'],organizat['Количество занимающихся детей'],organizat['Количество занимающихся детей художественной направленностью'],organizat['Количество занимающихся детей естественно-научной направленностью'],organizat['Количество занимающихся детей технической направленностью'],organizat['Количество занимающихся детей социально-педагогической направленностью'],organizat['Количество занимающихся детей физкультурно-спортивной направленностью'],organizat['Количество занимающихся детей туристической направленностью'],organizat['Количество занимающихся детей интеллектуально игровой направленностью'],organizat['Фактическая наполняемость'],organizat['Количество педагогов'],organizat['Количество педагогов художественной направленности'],organizat['Количество педагогов естественно-научной направленности'],organizat['Количество педагогов технической направленности'],organizat['Количество педагогов социально-педагогической направленности'],organizat['Количество педагогов физкультурно-спортивной направленности'],organizat['Количество педагогов туристической направленности'],organizat['Количество педагогов интеллектуально игровой направленности'],organizat['okfs'],organizat['okopf'],organizat['ogrn'],organizat['inn'],organizat['id'],organizat['Техническое'],organizat['Естественнонаучная']])
+        try:
+            writer.writerow([organizat['Адрес организации'],organizat['Номер телефона орагнизации'],organizat['Номер дополнительного телефона орагнизации'],organizat['email aдрес'],organizat['Адрес сайта'],organizat['Работает ли сайт?'],organizat['title сайта организации'],organizat['description сайта организации'],organizat['keywords сайта организации'],organizat['id региона'],organizat['Полное наименование организации (по уставу)'],organizat['Краткое наименование организации'],organizat['Дата создания организации'],organizat['Юридическое лицо / Филиал'],organizat['Общее количество сотрудников'],organizat['Субъект РФ'],organizat['Тип организации'],organizat['Количество занимающихся детей'],organizat['Количество занимающихся детей художественной направленностью'],organizat['Количество занимающихся детей естественно-научной направленностью'],organizat['Количество занимающихся детей технической направленностью'],organizat['Количество занимающихся детей социально-педагогической направленностью'],organizat['Количество занимающихся детей физкультурно-спортивной направленностью'],organizat['Количество занимающихся детей туристической направленностью'],organizat['Количество занимающихся детей интеллектуально игровой направленностью'],organizat['Фактическая наполняемость'],organizat['Количество педагогов'],organizat['Количество педагогов художественной направленности'],organizat['Количество педагогов естественно-научной направленности'],organizat['Количество педагогов технической направленности'],organizat['Количество педагогов социально-педагогической направленности'],organizat['Количество педагогов физкультурно-спортивной направленности'],organizat['Количество педагогов туристической направленности'],organizat['Количество педагогов интеллектуально игровой направленности'],organizat['okfs'],organizat['okopf'],organizat['ogrn'],organizat['inn'],organizat['id'],organizat['Техническое'],organizat['Естественнонаучная']])
+        except:
+            writer.writerow(['ERROR','ERROR','ERROR','ERROR','ERROR','ERROR','ERROR','ERROR','ERROR','ERROR','ERROR','ERROR','ERROR','ERROR','ERROR','ERROR','ERROR','ERROR','ERROR','ERROR','ERROR','ERROR','ERROR','ERROR','ERROR','ERROR','ERROR','ERROR','ERROR','ERROR','ERROR','ERROR','ERROR','ERROR','ERROR','ERROR','ERROR','ERROR','ERROR','ERROR'])
