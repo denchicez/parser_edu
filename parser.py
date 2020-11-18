@@ -332,7 +332,6 @@ def get_content(organization,coun):
                 okfs='Не известно'
         except:
             okfs='Не известно'
-        print(organization['okfs'], ' ',okfs)
         try:
             indef_of_organ=soup.find(title='Идентификатор организации').text
             if(indef_of_organ=='' or indef_of_organ==None or indef_of_organ==' '):
@@ -408,7 +407,6 @@ data = json.loads(x)
 organizationsss=[]
 count=0;
 for organization in data["data"]["list"]:
-    print(organization['id'])
     get_content(organization,count)
 with open('org.csv', 'w', newline="") as file:
     writer = csv.writer(file, delimiter=';')
