@@ -146,7 +146,6 @@ def get_content(organization,coun):
             all_code = ['UTF-8','UTF-16','cp1251','latin1']
             try:
                 title_org_site=((soup2.find('head')).find('title')).text
-                print(title_org_site)
                 if(title_org_site.find('�',0,len(title_org_site))==-1):
                     code1='UTF-8'
                     code2='UTF-8'
@@ -163,7 +162,6 @@ def get_content(organization,coun):
                             break
                 else:
                     title_org_site='У сайта неизвестная кодировка'  
-                print(title_org_site)
             except:
                 code1='UTF-8'
                 code2='UTF-8'
@@ -412,8 +410,6 @@ count=0;
 for organization in data["data"]["list"]:
     print(organization['id'])
     get_content(organization,count)
-    if(count==500):
-        break
 with open('org.csv', 'w', newline="") as file:
     writer = csv.writer(file, delimiter=';')
     writer.writerow(['Адрес организации','Номер телефона орагнизации','Номер дополнительного телефона орагнизации','email aдрес',
