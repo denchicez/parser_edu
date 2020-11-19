@@ -10,6 +10,11 @@ import json
 HEADERS = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:82.0) Gecko/20100101 Firefox/82.0', 'accept': '*/*'}
 HOST = 'http://dop.edu.ru'
 URL = "http://dop.edu.ru/organization/list?page=0&perPage=999999"
+def InstFollowers(url_name):
+    url_name=url_name+'?__a=1'
+    html_inst=get_html(url_name).text
+    data_inst = json.loads(html_inst)
+    return(data_inst['graphql']['user']['edge_followed_by']['count'])
 def voidless(per): #проверка пустоты строчки
     if(per=='' or per==None or per==' '):
         return('Неизвестно')
