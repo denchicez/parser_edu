@@ -108,6 +108,22 @@ def NameCheck(string,code1,code2): #Можно ли расшифровать sti
         return False
     else:
         return True #все верно
+    
+def decode(string):
+    all_code = ['UTF-8','cp1251','latin1'] #возможные виды кодировок
+    chk=0
+    for code_in_all1 in all_code:
+        for code_in_all2 in all_code:
+            if(NameCheck(string,code_in_all1,code_in_all2)==True):
+                code1=code_in_all1
+                code2=code_in_all2
+                chk=1
+                break
+        if(chk==1): #если нашлась кодировка 
+            string=string.encode(code1).decode(code2) #декодируем
+            return string,code1,code2
+    return 'У сайта неизвестная кодировка','UTF-8', 'UTF-8'
+
 def get_content(organization): #узнаем все параметры организации
     try:
         techno=organization['orientation_name'].find('Техническая',0,len(organization['orientation_name']))
@@ -128,8 +144,8 @@ def get_content(organization): #узнаем все параметры орга�
         estestv=True
     if(estestv==1 or techno==1):
         global count
-        count=count+1
         print(count,'/ 1562')
+        count=count+1
         org_id=organization['id']
         HTML=get_html(HOST+'/organization/view/'+str(org_id)).text
         soup=BeautifulSoup(HTML,'html.parser')
@@ -170,23 +186,7 @@ def get_content(organization): #узнаем все параметры орга�
             all_code = ['UTF-8','cp1251','latin1'] #возможные виды кодировок
             try:
                 title_org_site=((soup2.find('head')).find('title')).text #title с кодировкой сайта 
-                if(title_org_site.find('�',0,len(title_org_site))==-1): #если не найдена неизвестная кодировка
-                    chk=0
-                    for code_in_all1 in all_code:
-                        for code_in_all2 in all_code:
-                            if(NameCheck(title_org_site,code_in_all1,code_in_all2)==True):
-                                code1=code_in_all1
-                                code2=code_in_all2
-                                chk=1
-                                break
-                        if(chk==1): #если нашлась кодировка 
-                            title_org_site=title_org_site.encode(code1).decode(code2) #декодируем
-                            break
-                    if(chk==0): #если не нашлась(не можем расшифровать)
-                        title_org_site='У сайта неизвестная кодировка'
-                else:  #если найдена неизвестная кодировка
-                    title_org_site='У сайта неизвестная кодировка' 
-                
+                title_org_site,code1,code2 = decode(title_org_site)
             except:
                 code1='UTF-8'
                 code2='UTF-8'
@@ -244,7 +244,7 @@ def get_content(organization): #узнаем все параметры орга�
         ogrn=get_api_of('ogrn')
         #Находит ИНН
         inn=get_api_of('inn')
-        #--------------Количество детей и педагогов в каждом из направлений и в целом----------------------------------------------------------    
+        #--------------Количество педагогов в каждом из направлений и в целом--------------#
         all_ped, last=count_predkov("Всего:",0,HTML)
         count_ped_paints, last=count_predkov("Художественная направленность:",0,HTML)
         count_ped_estesv, last=count_predkov("Естественнонаучная направленность:",0,HTML)
@@ -253,7 +253,7 @@ def get_content(organization): #узнаем все параметры орга�
         count_ped_fizra, last=count_predkov("Физкультурно-спортивная направленность:",0,HTML)
         count_ped_turist, last=count_predkov("Туристско-краеведческая направленность:",0,HTML)
         count_ped_intellect, last=count_predkov("Интеллектуальные игры направленность:",0,HTML)
-        
+        #--------------Количество детей в каждом из направлений и в целом--------------#
         all_child, last=count_predkov("Всего:",last,HTML)
         count_child_paints, last=count_predkov("Художественная направленность:",last,HTML)
         count_child_estesv, last=count_predkov("Естественнонаучная направленность:",last,HTML)
@@ -312,6 +312,8 @@ organizationsss=[]
 count=0;
 for organization in data["data"]["list"]:
     #print(organization['id'])
+    #if(count>20):
+    #    break
     get_content(organization)
 with open('org.csv', 'w', newline="") as file:
     writer = csv.writer(file, delimiter=';')
