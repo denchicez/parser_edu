@@ -128,8 +128,8 @@ def get_content(organization): #узнаем все параметры орга�
         estestv=True
     if(estestv==1 or techno==1):
         global count
-        print(count,'/ 1562')
         count=count+1
+        print(count,'/ 1562')
         org_id=organization['id']
         HTML=get_html(HOST+'/organization/view/'+str(org_id)).text
         soup=BeautifulSoup(HTML,'html.parser')
@@ -312,8 +312,6 @@ organizationsss=[]
 count=0;
 for organization in data["data"]["list"]:
     #print(organization['id'])
-    if(count>20):
-        break
     get_content(organization)
 with open('org.csv', 'w', newline="") as file:
     writer = csv.writer(file, delimiter=';')
