@@ -309,7 +309,7 @@ def get_content(organization): #узнаем все параметры орга�
 x=get_html(URL).text
 data = json.loads(x)
 organizationsss=[]
-count=0;
+count=1;
 for organization in data["data"]["list"]:
     #print(organization['id'])
     #if(count>20):
