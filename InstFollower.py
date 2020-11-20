@@ -18,7 +18,7 @@ def InstFollowers(url_name):
     
     
     
-inst_link='https://www.instagram.com/_f3dorov_/'
-print(InstFollowers(inst_link))
-inst_link='https://www.instagram.com/denchicez/'
-print(InstFollowers(inst_link))
+#inst_link='https://www.instagram.com/_f3dorov_/'
+#print(InstFollowers(inst_link))
+#inst_link='https://www.instagram.com/denchicez/'
+#print(InstFollowers(inst_link))
