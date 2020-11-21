@@ -40,5 +40,5 @@ def get_social_links(links):
     if (len(socials[3]) != 0):
         result['facebook'] = socials[3][0] # так как facebook не получается, берем единственную ссылку       
     return result
-my_links = {'https://www.instagram.com/_egor.bocharov/?hl=ru', 'https://vk.com/countryballs_re', 'https://ru-ru.facebook.com/groups/363858560447388/', 'https://www.youtube.com/c/Spoontamer'}
-print(get_social_links(my_links))
+#my_links = {'https://www.instagram.com/_egor.bocharov/?hl=ru', 'https://vk.com/countryballs_re', 'https://ru-ru.facebook.com/groups/363858560447388/', 'https://www.youtube.com/c/Spoontamer'}
+#print(get_social_links(my_links))
