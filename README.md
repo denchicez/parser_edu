@@ -5,6 +5,8 @@
 - sudo apt install python3-pip
 - pip3 install beautifulsoup4
 - pip3 install requests
+- pip3 install vk
+- pip3 install validators
 ```
 ## Run script
 ### Script template
