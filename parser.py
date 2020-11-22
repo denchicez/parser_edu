@@ -557,8 +557,6 @@ count=1;
 for organization in data["data"]["list"]:
     #print(organization['id'])
     get_content(organization)
-    if(count>40):
-        break
 with open('org.csv', 'w', newline="") as file:
     writer = csv.writer(file, delimiter=',')
     writer.writerow(['Адрес организации','Номер телефона орагнизации','Номер дополнительного телефона орагнизации','email aдрес',
