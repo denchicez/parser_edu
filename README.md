@@ -1,4 +1,4 @@
-# Парсер сайта http://dop.edu.ru/organization по Московской области и технологическому направлению
+# Парсер сайта http://dop.edu.ru/organization по естественнонаучному и технологическому направлению.
 ## Download packages
 ```
 - sudo apt update
